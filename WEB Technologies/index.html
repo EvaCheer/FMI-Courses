@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+
+<body>
+    <div class="image">
+        <img src="dog.png" alt="dog">
+    </div>
+    <section class="registration-card">
+        <header class="title">
+            <h2>Yay, puppies! Register your puppy today!</h2>
+        </header>
+
+        <div class="form">
+            <form id="dog-form">
+                <label for="pet-name">Name</label><br>
+                <input type="text" name="petName" id="pet-name" value="Pet's name"><br>
+
+                <button type="button">Upload Photo</button><br>
+
+                <label for="choose-breed">Breed</label><br>
+                <select name="chooseBreed" id="choose-breed" value="Choose a breed">
+                    <option value="labrador-retriever">Labrador Retriever</option>
+                    <option value="cocker-spaniel">Cocker Spaniel</option>
+                    <option value="pit-bull">Pit Bull</option>
+                </select> <br>
+
+                <label for="pet-birthday">Birthday</label><br>
+                <input type="date" id="pet-birthday" name="petBirthday"><br>
+
+                <label for="female">Gender</label><br>
+                <input type="radio" name="female" id="female">
+                <label for="female">Female</label>
+                <input type="radio" name="male" id="male">
+                <label for="male">Male</label><br>
+
+                <label for="weight">Weight (lbs)</label>
+                <input type="number" name="weight" id="weight" value="Enter weight"><br>
+
+                <input type="submit" value="Submit" class="navigation-btn" id="next-btn">
+            </form>
+            <button type="button" class="navigation-btn">Back</button>
+        </div>
+    </section>
+</body>
+
+</html>
