@@ -51,10 +51,6 @@ select {
     cursor: pointer;
     margin-top: 10px;
 }
-/* 
-.navigation{
-    display: block; 
-} */
 .navigation-btn {
     background-color: #fefae0;
     color: black;
