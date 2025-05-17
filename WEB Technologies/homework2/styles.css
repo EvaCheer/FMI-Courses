@@ -5,6 +5,7 @@ body{
 
 .image{
     display: inline;
+    object-fit: contain;
 }
 
 .registration-card{
@@ -57,10 +58,11 @@ select {
     border: none;
     padding: 8px 12px;
     margin: 8px 0;
-    border-radius: 5px;
+    border-radius: 15px;
     cursor: pointer;
     display: inline-block;
     text-align: center;
+    width: 20%;
 }
 
 .navigation-btn:hover {
@@ -69,5 +71,7 @@ select {
 
 #next-btn{
     float: right;
+    color: white;
+    background-color: rgb(146, 135, 121);
 }
 
