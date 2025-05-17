@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav id="content-outline">
+        <ul>
+            <li><a href="#DOM-tree-title">DOM дърво. Обхожане и манипулация.</a></li>
+            <li><a href="#what-is-DOM">Какво е DOM?</a></li>
+            <li><a href="#types-of-nodes">Основни обекти в DOM</a></li>
+            <li><a href="#accessing-elements">Достъп до елементи в DOM</a></li>
+            <li><a href="#traversing-dom">Обхождане на DOM дървото</a></li>
+            <li><a href="#modifying-elements">Промяна на елементи в DOM</a></li>
+            <li><a href="#creating-elements">Създаване на нови елементи</a></li>
+            <li><a href="#removing-elements">Премахване на елементи от DOM</a></li>
+            <li><a href="#event-handling">Работа със събития (Events)</a></li>
+            <li><a href="#bubbling-capturing">Bubbling и Capturing при събития</a></li>
+            <li><a href="#delegation">Делегиране на събития (Event Delegation)</a></li>
+            <li><a href="#dom-collections">DOM Колекции: HTMLCollection и NodeList</a></li>
+            <li><a href="#attributes-properties">Атрибути и свойства на елементите</a></li>
+            <li><a href="#performance-optimizations">Оптимизация на работа с DOM</a></li>
+            <li><a href="#virtual-dom">Концепция за Virtual DOM</a></li>
+        </ul>
+    </nav>
+    <main id="content">
+        <h1 id="DOM-tree-title">
+            DOM дърво. Обхожане и манипулация.
+        </h1>
+        <p>
+            DOM или Document Object Model е програмен интерфейс за уеб документи. Той представя документа
+            така, че да позволи на програмните езици да променят структурата, стила и съдържанието му.
+        </p>
+        <hr>
+        <section id="what-is-DOM">
+            <h2>Какво е DOM? Структура на DOM дървото </h2>
+            <p>
+                DOM представя уеб документите в дървовидна структура. Всеки клон на дървото завършва с възел
+                и всеки възел съдържа обект. Всички свойства, методи и събития, достъпни за манипулиране и
+                създаване на уеб страници, са организирани в обекти. Например: обектът document, който
+                представлява самия документ, всички table обекти, които имплементират DOM интерфейса
+                HTMLTableElement за достъп до HTML таблици и т.н., са обекти.
+            </p>
+            <p> Структурата на DOM прилича на обърнато дърво, където върхът (коренът) е самият документ
+                (`document`), а от него излизат клони — елементи като `&lt;html>`, `&lt;body>`, `&lt;h1>`, `&gt;p>`
+                и т.н. Всеки клон може да има свои деца — други елементи или текстови възли.
+                Основните видове възли в DOM са: елементни възли (Element Nodes), текстови възли
+                (Text Nodes) и атрибутни възли (Attribute Nodes).
+                <sup><a href="#ref-footnote-1" id="dfref-footnote-1">[1]</a></sup>
+            </p>
+            <img id="DOM-tree-picture" src="htmlDOMTree.jpg" alt="htmlDOMTree" \>
+        </section>
+        <hr>
+        <section id="types-of-nodes">
+            <h2>Основни обекти в DOM
+                <sup><a href="#ref-footnote-2" id="dfref-footnote-2">[2]</a></sup>
+            </h2>
+            <p> DOM дефинира няколко основни интерфейса, които представляват различните видове възли: </p>
+            <table id="data-table" class="table">
+                <thead>
+                    <tr>
+                        <th>Data type(interface)</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Document</td>
+                        <td>Представлява цялото съдържание на HTML документа. Обектът document е входната точка за
+                            достъп до други елементи.
+                            Когато член върне обект от тип document (например, свойството ownerDocument на елемент връща
+                            документа, към който принадлежи), този обект е самият коренов обект document.</td>
+                    </tr>
+                    <tr>
+                        <td>Node</td>
+                        <td>Всеки обект, разположен в документ, е възел от някакъв вид.
+                            Този базов интерфейс описва всички видове възли в DOM, включително елементи, текст и
+                            атрибути.</td>
+                    </tr>
+                    <tr>
+                        <td>Element</td>
+                        <td>
+                            Всеки HTML елемент (като &lt;p>, &lt;div>) е обект от тип Element.
+                            Вместо да казваме например, че методът document.createElement()
+                            връща обектна препратка към възел, ние просто казваме, че този метод връща елемента, който
+                            току-що е създаден в DOM. Обектите element имплементират интерфейса DOM Element, както и
+                            по-основния интерфейс Node. В HTML
+                            документ елементите са допълнително подобрени от интерфейса HTMLElement на HTML DOM API,
+                            както и от други интерфейси, описващи възможностите на специфични видове елементи (например
+                            HTMLTableElement за елементи &lt;table>).
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>NodeList</td>
+                        <td>NodeList (списък с възли) NodeList е масив от елементи, подобен на този, който се връща от
+                            метода document.querySelectorAll(). Достъпът до елементите в nodeList се осъществява чрез
+                            index
+                            по един от два начина:
+                            list.item(1)
+                            list[1]
+                            Тези два са еквивалентни. В първия случай item() е единственият метод на обекта nodeList.
+                            Вторият използва типичния синтаксис на масиви, за да извлече втория елемент в списъка.</td>
+                    </tr>
+                    <tr>
+                        <td>Attr</td>
+                        <td>Когато атрибут се върне от член (например от метода createAttribute()), това е обектна
+                            препратка, която предоставя специален (макар и малък) интерфейс за атрибути. Атрибутите са
+                            възли
+                            в DOM, точно както елементите, въпреки че рядко може да ги използвате като такива.</td>
+                    </tr>
+                    <tr>
+                        <td>NameNodeMap</td>
+                        <td>NamedNodeMap е като масив, но до елементите се осъществява достъп по име или индекс, въпреки
+                            че
+                            последният случай е просто удобство за изброяване, тъй като те не са в определен ред в
+                            списъка.
+                            NamedNodeMap има метод item() за тази цел и можете също да добавяте и премахвате елементи от
+                            namedNodeMap.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        <hr>
+        <section id="accessing-elements">
+            <h2>Достъп до елементи в DOM</h2>
+            <p>
+                Достъпът до елементи в DOM е основна стъпка при всяка манипулация на уеб страници чрез JavaScript. DOM
+                предоставя
+                мощен набор от методи за намиране на елементи, които ни позволяват да ги четем, променяме, изтриваме или
+                създаваме.
+                Разбирането на различните начини за достъп е важно за оптималността и стабилността на кода.
+            </p>
+
+            <h3 id="standard-methods">Стандартни методи за достъп</h3>
+            <p>
+                DOM API предоставя класически методи за достъп до елементи:
+            </p>
+            <ul>
+                <li><code>getElementById(id)</code> – Връща елемент с дадено ID (уникален в документа).</li>
+                <li><code>getElementsByClassName(className)</code> – Връща HTMLCollection от елементи с даден клас.</li>
+                <li><code>getElementsByTagName(tagName)</code> – Връща HTMLCollection от елементи с даден таг.</li>
+            </ul>
+            <p>
+                Тези методи са по-стари, но все още широко използвани заради тяхната бързина<sup><a
+                        href="#ref-footnote-3" id="dfref-footnote-3">[3]</a></sup>.
+            </p>
+
+            <h3 id="modern-methods">Съвременни методи с CSS селектори</h3>
+            <p>
+                За по-гъвкаво търсене, особено в сложни документи, можем да използваме:
+            </p>
+            <ul>
+                <li><code>querySelector(selector)</code> – Връща първия елемент, който съвпада с дадения CSS селектор.
+                </li>
+                <li><code>querySelectorAll(selector)</code> – Връща статичен NodeList с всички съвпадащи елементи.</li>
+            </ul>
+            <p>
+                Например, за да достъпим първия бутон с клас <code>primary</code>:
+            </p>
+            <pre class="code-block">
+        const button = document.querySelector('.primary');
+        button.textContent = "Кликни ме!";
+            </pre>
+
+            <h3 id="htmlcollection-vs-nodelist">HTMLCollection vs NodeList</h3>
+            <p>
+                Важно е да разберем разликата между върнатите колекции:
+            </p>
+            <ul>
+                <li><strong>HTMLCollection</strong> е динамичен – автоматично се актуализира при промяна на DOM.</li>
+                <li><strong>NodeList</strong> обикновено е "статичен" – не се променя автоматично при модификации.</li>
+            </ul>
+            <p>
+                Това оказва влияние при динамични операции, като добавяне или премахване на елементи<sup><a
+                        href="#ref-footnote-4" id="dfref-footnote-4">[4]</a></sup>.
+            </p>
+
+            <h3 id="searching-within-elements">Търсене вътре в елемент</h3>
+            <p>
+                Методи като <code>querySelector</code> могат да се използват не само върху <code>document</code>, но и
+                върху конкретен елемент:
+            </p>
+            <pre class="code-block">
+        const section = document.getElementById('news');
+        const articleTitle = section.querySelector('h2');
+            </pre>
+            <p>
+                Това позволява локализирано търсене в част от страницата, без да се претърсва целият DOM.
+            </p>
+
+            <h3 id="good-practice">Добри практики</h3>
+            <p>
+                При много големи документи, честото използване на сложни селектори в <code>querySelectorAll</code> може
+                да забави
+                работата на скрипта. Препоръчително е да се използва <code>getElementById</code> или кеширане на
+                резултатите
+                когато е възможно<sup><a href="#ref-footnote-5" id="dfref-footnote-5">[5]</a></sup>.
+            </p>
+
+            <h3 id="short-example-access">Кратък пример: намиране на всички линкове в секция</h3>
+            <pre class="code-block">
+        const sidebar = document.querySelector('#sidebar');
+        const links = sidebar.querySelectorAll('a');
+        links.forEach(link => {
+            link.style.color = 'red';
+        });
+            </pre>
+        </section>
+        <hr>
+        <section id="traversing-dom">
+            <h2>Обхождане на DOM дървото<sup><a href="#ref-footnote-6" id="dfref-footnote-6">[6]</a></sup></h2>
+            <p>
+                Обхождането на DOM дървото означава навигиране между различните възли (nodes) на документа, за да
+                намерим,
+                променим или анализираме съдържанието му. Чрез използване на различни свойства и методи на DOM можем
+                лесно да
+                се придвижваме между елементите като родители, деца или братя и сестри.
+            </p>
+
+            <h3 id="parent-and-child">Родители и деца <sup><a href="#ref-footnote-7" id="dfref-footnote-7">[7]</a></sup>
+            </h3>
+            <p>
+                Всеки елемент в DOM има свой родителски възел (<code>parentNode</code>) и може да има списък от дъщерни
+                възли
+                (<code>childNodes</code>). Най-горният родител е обектът <code>document</code>.
+            </p>
+            <pre class="code-block">
+        const paragraph = document.querySelector('p');
+        const parent = paragraph.parentNode;
+        console.log(parent.tagName); // напр. 'SECTION'
+            </pre>
+
+            <p>
+                За да достъпим конкретни деца, можем да използваме:
+            </p>
+            <ul>
+                <li><code>firstChild</code> – първото дете (може да е текстов възел)</li>
+                <li><code>firstElementChild</code> – първото елемент-дете</li>
+                <li><code>lastChild</code> – последното дете</li>
+                <li><code>lastElementChild</code> – последното елемент-дете</li>
+            </ul>
+
+            <h3 id="siblings">Братя и сестри</h3>
+            <p>
+                Братя и сестри са елементи, които споделят един и същ родител. DOM ни позволява лесно да преминаваме
+                между тях:
+            </p>
+            <ul>
+                <li><code>nextSibling</code> – следващ възел (може да е текст)</li>
+                <li><code>nextElementSibling</code> – следващ елемент</li>
+                <li><code>previousSibling</code> – предишен възел</li>
+                <li><code>previousElementSibling</code> – предишен елемент</li>
+            </ul>
+            <pre class="code-block">
+        const currentItem = document.querySelector('.active');
+        const nextItem = currentItem.nextElementSibling;
+        nextItem.classList.add('highlight');
+            </pre>
+
+            <h3 id="childnodes-vs-children">Разлика между childNodes и children</h3>
+            <p>
+                Свойството <code>childNodes</code> връща всички видове възли (включително текстови възли като интервали
+                и нови редове),
+                докато <code>children</code> връща само елементи. Това е особено важно при обхождане:
+            </p>
+            <pre class="code-block">
+        // Включва текстови възли
+        const allNodes = document.body.childNodes;
+        
+        // Само елементи
+        const elementChildren = document.body.children;
+            </pre>
+
+
+            <h3 id="looping-through-elements">Обхождане с цикли</h3>
+            <p>
+                За да обходим всички деца на даден елемент, можем да използваме цикли като <code>for</code> или
+                <code>forEach</code>.
+                При <code>children</code> елементите се връщат като HTMLCollection, така че често е нужно да ги
+                преобразуваме в масив:
+            </p>
+            <pre class="code-block">
+        const parent = document.querySelector('.container');
+        const children = Array.from(parent.children);
+        
+        children.forEach(child => {
+            console.log(child.tagName);
+        });
+            </pre>
+            <p>
+                Ако използваме <code>childNodes</code>, трябва да внимаваме да проверяваме типа на възела
+                (<code>nodeType</code>), защото може да съдържа и текстови възли.
+            </p>
+            <pre class="code-block">
+        parent.childNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                console.log(node.tagName);
+            }
+        });
+            </pre>
+
+            <h3 id="navigating-up-and-down">Навигиране нагоре и надолу по дървото</h3>
+            <p>
+                DOM позволява динамично придвижване не само към деца, но и нагоре към родителите или към специфични
+                части на дървото.
+                Например:
+            </p>
+            <pre class="code-block">
+        const link = document.querySelector('a');
+        const section = link.closest('section');
+        console.log(section.id);
+            </pre>
+            <p>
+                Методът <code>closest(selector)</code> търси най-близкия родител, отговарящ на даден CSS селектор, което
+                е особено полезно при работа със събития и делегиране.
+            </p>
+
+            <h3 id="short-example-traversing">Кратък пример: оцветяване на всички заглавия в секция</h3>
+            <pre class="code-block">
+        const section = document.querySelector('#news');
+        const headings = section.querySelectorAll('h2, h3');
+        
+        headings.forEach(heading => {
+            heading.style.backgroundColor = 'lightblue';
+        });
+            </pre>
+            <p>
+                Така можем бързо да обходим и променим всички заглавия в дадена част от документа.
+            </p>
+
+
+            <h3 id="navigating-deeply">Навигиране в дълбочина</h3>
+            <p>
+                Можем да комбинираме няколко стъпки за по-дълбоко навигиране. Пример: намиране на третия елемент в
+                първата секция:
+            </p>
+            <pre class="code-block">
+        const firstSection = document.querySelector('section');
+        const thirdElement = firstSection.children[2];
+        thirdElement.style.backgroundColor = 'lightblue';
+            </pre>
+
+            <h3 id="performance-traversing">Съображения за производителност</h3>
+            <p>
+                При обхождане на големи DOM дървета трябва да избягваме излишно обхождане и да кешираме резултатите в
+                променливи,
+                за да минимизираме броя на DOM операциите, които са сравнително бавни.
+            </p>
+
+            <h3 id="common-pitfalls">Чести грешки при обхождане</h3>
+            <ul>
+                <li>Бъркане на <code>childNodes</code> с <code>children</code>, което води до неочаквани резултати.</li>
+                <li>Неволно навигиране към текстови възли вместо елементи.</li>
+                <li>Прекомерно вложени цикли, които забавят страницата.</li>
+            </ul>
+
+            <h3 id="summary-traversing">Обобщение</h3>
+            <p>
+                Ефективното обхождане на DOM позволява на разработчиците да създават динамични, интерактивни уеб
+                приложения.
+                Разбирането на концепцията за родители, деца и братя/сестри е ключово за правилното манипулиране на
+                структурата на документа.
+            </p>
+        </section>
+        <hr>
+        <section id="modifying-elements">
+            <h2>Промяна на елементи в DOM дървото</h2>
+            <p>Промяната на елементи в DOM дървото е основен аспект от динамичните уеб приложения. След като елемент
+                бъде избран чрез JavaScript, можем да променяме неговите атрибути, съдържание, стилове или дори
+                структурата на цялото дърво.</p>
+
+            <h3>Промяна на съдържанието</h3>
+            <p>Най-често срещаната операция е промяната на текстово съдържание с помощта на свойството
+                <code>innerText</code> или <code>innerHTML</code>.
+                <sup><a href="#ref-footnote-8" id="dfref-footnote-8">[8]</a></sup> Например:
+            </p>
+            <pre class="code-block">
+        const heading = document.getElementById("main-title");
+        heading.innerText = "Добре дошли!";</pre>
+
+            <h3>Промяна на атрибути</h3>
+            <p>Атрибути като <code>src</code>, <code>href</code>, <code>alt</code>, <code>title</code> и други могат да
+                бъдат променяни чрез метода <code>setAttribute</code> или директно чрез свойства на елемента<sup><a
+                        href="#ref-footnote-9" id="dfref-footnote-9">[9]</a></sup>:</p>
+            <pre class="code-block">
+        const image = document.getElementById("hero-image");
+        image.setAttribute("src", "new-image.jpg");
+        image.alt = "Ново описание";</pre>
+
+            <h3>Промяна на стилове</h3>
+            <p>С помощта на свойството <code>style</code> можем да задаваме CSS стилове директно върху елементи<sup><a
+                        href="#ref-footnote-10" id="dfref-footnote-10">[10]</a></sup>:</p>
+            <pre class="code-block">
+        const button = document.querySelector(".submit-btn");
+        button.style.backgroundColor = "blue";
+        button.style.color = "white";</pre>
+
+            <h3>Добавяне и премахване на класове</h3>
+            <p>Класовете могат да се добавят или премахват динамично с <code>classList</code>:</p>
+            <pre class="code-block">
+        const menu = document.getElementById("main-menu");
+        menu.classList.add("active");
+        menu.classList.remove("hidden");</pre>
+
+            <h3>Замяна на елементи</h3>
+            <p>Можем да заменим елемент чрез метода <code>replaceChild</code><sup><a href="#ref-footnote-11"
+                        id="dfref-footnote-11">[11]</a></sup>:</p>
+            <pre class="code-block">
+        const oldNode = document.getElementById("old-paragraph");
+        const newNode = document.createElement("p");
+        newNode.innerText = "Това е нов абзац.";
+        oldNode.parentNode.replaceChild(newNode, oldNode);</pre>
+        </section>
+        <hr>
+        <section id="creating-elements">
+            <h2>Създаване на нови елементи в DOM дървото</h2>
+            <p>Чрез JavaScript можем да
+                добавяме нови възли към DOM дървото, които да съдържат текст, атрибути, класове и други характеристики.
+            </p>
+
+            <h3>Създаване на елемент</h3>
+            <p>Създаваме нов HTML елемент с помощта на метода <code>createElement</code>.<sup><a href="#ref-footnote-12"
+                        id="dfref-footnote-12">[12]</a></sup> Например:</p>
+            <pre class="code-block">
+        const newParagraph = document.createElement("p");
+        newParagraph.innerText = "Това е новосъздаден параграф.";</pre>
+
+            <h3>Добавяне на елемента към документа</h3>
+            <p>След създаването, новият елемент трябва да бъде добавен към съществуващ елемент от страницата с метода
+                <code>appendChild</code>.<sup><a href="#ref-footnote-13" id="dfref-footnote-13">[13]</a></sup>
+            </p>
+            <pre class="code-block">
+        const container = document.getElementById("content-container");
+        container.appendChild(newParagraph);</pre>
+
+            <h3>Добавяне на текстови възли</h3>
+            <p>Освен чрез <code>innerText</code>, можем да създаваме текстови възли отделно с метода
+                <code>createTextNode</code> и да ги добавяме към елементи.<sup><a href="#ref-footnote-14"
+                        id="dfref-footnote-14">[14]</a></sup>
+            </p>
+            <pre class="code-block">
+        const textNode = document.createTextNode("Това е текстов възел.");
+        newParagraph.appendChild(textNode);</pre>
+
+            <h3>Добавяне на атрибути и класове</h3>
+            <p>На новите елементи можем да добавяме атрибути чрез <code>setAttribute</code> или да им задаваме класове
+                за стилизиране.<sup><a href="#ref-footnote-15" id="dfref-footnote-15">[15]</a></sup></p>
+            <pre class="code-block">
+        newParagraph.setAttribute("id", "new-paragraph");
+        newParagraph.classList.add("highlighted");</pre>
+        </section>
+        <hr>
+        <section id="removing-elements">
+            <h2>Премахване на елементи от DOM</h2>
+            <p>Премахването на елементи от DOM дървото е важна част от управлението на динамично съдържание в уеб
+                страниците. Това позволява освобождаване на ресурси и актуализиране на интерфейса в реално време.</p>
+
+            <h3>Използване на removeChild()</h3>
+            <p>Класическият начин за премахване на елемент е чрез метода <code>removeChild()</code> на неговия
+                родител.<sup><a href="#ref-footnote-16" id="dfref-footnote-16">[16]</a></sup> Например:</p>
+            <pre class="code-block">
+        const parent = document.getElementById("list");
+        const child = document.getElementById("list-item");
+        parent.removeChild(child);</pre>
+
+            <h3>Използване на remove()</h3>
+            <p>По-модерен и директен начин за премахване на елемент е чрез метода <code>remove()</code>, който се
+                извиква директно върху самия елемент.<sup><a href="#ref-footnote-17"
+                        id="dfref-footnote-17">[17]</a></sup></p>
+            <pre class="code-block">
+        const element = document.getElementById("obsolete-element");
+        element.remove();</pre>
+
+            <h3>Премахване на всички деца на елемент</h3>
+            <p>За да изчистим всички вложени елементи в даден родител, можем да използваме цикъл, който премахва всяко
+                дете едно по едно:<sup><a href="#ref-footnote-18" id="dfref-footnote-18">[18]</a></sup></p>
+            <pre class="code-block">
+        const container = document.getElementById("content");
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }</pre>
+        </section>
+        <hr>
+        <section id="event-handling">
+            <h2>Работа със събития (Events)</h2>
+            <p>В уеб разработката събитията са начинът, по който браузърът комуникира с JavaScript, когато потребителят
+                взаимодейства със страницата. Примери за събития са натискане на бутон, движение на мишката, въвеждане
+                на текст, зареждане на страница и много други.<sup><a href="#ref-footnote-19"
+                        id="dfref-footnote-19">[19]</a></sup></p>
+
+            <h3>Добавяне на обработчик на събитие</h3>
+            <p>За да реагираме на събития, използваме метода <code>addEventListener</code>. Той приема най-малко два
+                аргумента: вида на събитието (напр. "click") и функцията, която ще бъде извикана при настъпването му.
+            </p>
+            <pre class="code-block">
+        const button = document.getElementById("myButton");
+        button.addEventListener("click", function() {
+            alert("Бутонът беше натиснат!");
+        });</pre>
+
+            <h3>Обект на събитието (event object)</h3>
+            <p>Когато обработчикът на събитие се извика, на функцията автоматично се подава специален обект –
+                <code>event</code>. Той съдържа информация за самото събитие, като например кой елемент го е
+                предизвикал, кои клавиши са били натиснати и др.
+            </p>
+            <pre class="code-block">
+        button.addEventListener("click", function(event) {
+            console.log(event.type); // "click"
+            console.log(event.target); // елементът, върху който е кликнато
+        });
+        </pre>
+
+            <h3>Контекстът <code>this</code> в обработчик</h3>
+            <p>В обикновени функции (function expression), ключовата дума <code>this</code> вътре в обработчика сочи към
+                елемента, върху който е закачено събитието. Но ако използваме стрелкова функция (<code>() => {}</code>),
+                <code>this</code> няма да сочи към елемента, а към външния контекст.
+            </p>
+            <pre class="code-block">
+        // С обикновена функция
+        button.addEventListener("click", function() {
+            console.log(this); // <button id="myButton">...</button>
+        });
+        
+        // Със стрелкова функция
+        button.addEventListener("click", () => {
+            console.log(this); // Глобалният контекст (window или undefined в строг режим)
+        });
+        </pre>
+
+            <h3>Опции на <code>addEventListener</code></h3>
+            <p>Третият аргумент на <code>addEventListener</code> може да бъде обект с допълнителни настройки. Например,
+                ако искаме обработчикът да се изпълни само веднъж и след това автоматично да се премахне, използваме
+                опцията <code>once: true</code>:</p>
+            <pre class="code-block">
+        button.addEventListener("click", function() {
+            alert("Това ще се изпълни само веднъж!");
+        }, { once: true });
+        </pre>
+
+            <h3>Премахване на обработчик на събитие</h3>
+            <p>Премахването на обработчик става чрез метода <code>removeEventListener</code>. За да работи правилно,
+                трябва да използваме същата функция, която сме подали при добавянето:</p>
+            <pre class="code-block">
+        function handleClick() {
+            alert("Бутонът беше натиснат!");
+        }
+        
+        button.addEventListener("click", handleClick);
+        
+        // По-късно:
+        button.removeEventListener("click", handleClick);
+        </pre>
+            <p>Анонимни функции не могат да бъдат премахнати, тъй като нямат препратка:</p>
+            <pre class="code-block">
+        // Това няма да може да бъде премахнато:
+        button.addEventListener("click", function() {
+            console.log("Натиснато");
+        });
+        </pre>
+        </section>
+        <hr>
+        <section id="bubbling-capturing">
+            <h2>Bubbling и Capturing при събития</h2>
+            <p>Събитията в DOM могат да се обработват в две основни фази: фазата на <strong>capturing</strong>
+                (прихващане) и фазата на <strong>bubbling</strong> (възходящо преминаване). Разбирането на тези две фази
+                е важно, за да можем ефективно да управляваме обработката на събития в сложни DOM структури.</p>
+
+            <h3>Фаза на Capturing (Прихващане)</h3>
+            <p>Фазата на <strong>capturing</strong> е първата фаза на обработка на събитията. В тази фаза събитието
+                започва от най-горния родителски елемент и преминава надолу към целевия елемент. Тази фаза се използва
+                по-рядко, но е полезна, когато искаме събитията да се хващат още преди да достигнат самия елемент.</p>
+            <p>За да активираме фазата на capturing, можем да подадем третия параметър на <code>addEventListener</code>
+                като <code>true</code>.</p>
+            <pre class="code-block">
+        const parent = document.getElementById("parent");
+        const child = document.getElementById("child");
+        
+        parent.addEventListener("click", function() {
+            alert("Родителят улови събитието");
+        }, true); // true активира фаза на capturing
+        
+        child.addEventListener("click", function() {
+            alert("Детето улови събитието");
+        });
+        </pre>
+            <p>В този пример събитието ще бъде прихванато първо от родителя, а след това от детето, ако не се
+                предотврати по-нататъшното му преминаване към други елементи.</p>
+
+            <h3>Фаза на Bubbling (Възходящо преминаване)</h3>
+            <p>След като събитието достигне целевия елемент, то преминава през фазата на <strong>bubbling</strong>. Това
+                означава, че събитието преминава обратно към родителските елементи, започвайки от целевия елемент и
+                преминавайки нагоре към най-горния родител. Фазата на <strong>bubbling</strong> е по-често използвана и
+                е полезна, когато искаме да обработваме събития на родителски елементи и да избегнем необходимостта от
+                регистриране на събития за всеки отделен потомък.</p>
+            <p>По подразбиране събитията преминават през фазата на <strong>bubbling</strong>. Можем да използваме
+                <code>addEventListener</code> без да подадем третия параметър или като подадем <code>false</code> (което
+                е по подразбиране).
+            </p>
+            <pre class="code-block">
+        parent.addEventListener("click", function() {
+            alert("Родителят улови събитието в фазата на bubbling");
+        }); // Това ще се случи след като събитието премине през фазата на capturing
+        </pre>
+            <p>В този пример събитието ще премине през фазата на <strong>bubbling</strong>, започвайки от детето и след
+                това ще достигне родителя.</p>
+        </section>
+        <hr>
+        <section id="delegation">
+            <h2>Делегиране на събития (Event Delegation)<sup><a href="#ref-footnote-20"
+                        id="dfref-footnote-20">[20]</a></sup></h2>
+            <p>Делегирането на събития е техника, при която един родителски елемент се използва за обработка на
+                събитията на множество потомци. Тази техника значително подобрява производителността на уеб
+                приложенията, особено когато имаме динамично добавяне или премахване на елементи. Вместо да прикачваме
+                обработчик към всеки елемент поотделно, обработчикът на събития се прикачва само към родителския
+                елемент, който след това обработва събитията за всички негови деца.</p>
+
+            <h3>Как работи делегирането на събития?</h3>
+            <p>Основният принцип зад делегирането на събития е, че събитията се "преминават" през DOM дървото и могат да
+                бъдат хванати от родителския елемент, дори ако самият елемент, върху който се е случило събитието, е
+                добавен динамично. Това става чрез механизма за bubbling, при който събитията преминават от целевия
+                елемент нагоре към родителите му.</p>
+            <p>Когато използваме делегиране на събития, обработчикът на събития проверява събитията, които се случват
+                върху децата на родителския елемент, и решава какво да прави в зависимост от условията. Това намалява
+                броя на обработчиците на събития и прави приложението по-ефективно.</p>
+
+            <h3>Пример за делегиране на събития</h3>
+            <p>Представете си, че имате списък от елементи <code>&lt;li&gt;</code> в даден <code>&lt;ul&gt;</code>, и
+                искате да добавите събитие за кликане върху всеки от тях. Вместо да добавяте събитие към всеки елемент
+                поотделно, можете да добавите събитие само на родителския елемент <code>&lt;ul&gt;</code>.</p>
+
+            <pre class="code-block">
+        const list = document.getElementById("item-list");
+        
+        list.addEventListener("click", function(event) {
+            if (event.target && event.target.matches("li")) {
+                alert("Вие кликнахте върху елемент: " + event.target.innerText);
+            }
+        });
+        </pre>
+
+            <p>В този пример:</p>
+            <ul>
+                <li>Събитието "click" е добавено само към родителския елемент <code>&lt;ul&gt;</code>.</li>
+                <li>Когато потребителят кликне върху някой от <code>&lt;li&gt;</code> елементите, събитието се прихваща
+                    от родителя.</li>
+                <li>Използваме <code>event.target</code>, за да проверим дали събитието е било предизвикано от елемент
+                    <code>&lt;li&gt;</code>, като същевременно използваме <code>matches()</code>, за да проверим
+                    условията.
+                </li>
+            </ul>
+
+            <h3>Предимства на делегирането на събития</h3>
+            <p>Техниката за делегиране на събития има няколко основни предимства:</p>
+            <ul>
+                <li><strong>По-малко обработчици на събития:</strong> Когато използвате делегиране на събития, вместо да
+                    добавяте събития към всеки елемент, добавяте само един обработчик към родителския елемент. Това води
+                    до по-добра производителност, особено при динамично добавяне на елементи.</li>
+                <li><strong>Поддържане на динамично съдържание:</strong> Ако елементите се добавят или премахват
+                    динамично, не е нужно да добавяте нови обработчици на събития. Родителският елемент ще хваща
+                    събитията и за новите елементи.</li>
+                <li><strong>По-малко дублиране на код:</strong> Намалявате нуждата от повтарящи се обработчици за всеки
+                    елемент.</li>
+            </ul>
+
+            <h3>Пример с динамично добавяне на елементи</h3>
+            <p>Когато добавяте нови елементи към списъка динамично, събитията ще работят, благодарение на делегирането
+                на събития. Например, ако добавяте нови <code>&lt;li&gt;</code> елементи в <code>&lt;ul&gt;</code> и
+                искате същото събитие да работи за тях, това ще стане автоматично.</p>
+
+            <pre class="code-block">
+        const addButton = document.getElementById("add-item");
+        addButton.addEventListener("click", function() {
+            const newItem = document.createElement("li");
+            newItem.textContent = "Нов елемент";
+            list.appendChild(newItem);
+        });
+        </pre>
+
+            <p>След като добавим нов елемент към списъка, събитието ще бъде хванато от родителския елемент, така че не е
+                нужно да добавяме нов обработчик за всяко ново <code>&lt;li&gt;</code> елемент.</p>
+        </section>
+        <hr>
+        <section id="dom-collections">
+            <h2>DOM Колекции: HTMLCollection и NodeList</h2>
+            <p>При работа с DOM, често ще се сблъсквате с колекции от елементи, които могат да се върнат от различни
+                методи. Най-често срещаните колекции са <strong>HTMLCollection</strong> и <strong>NodeList</strong>. Те
+                са два различни типа масивоподобни обекти, които се използват за съхранение на набор от DOM елементи.
+            </p>
+
+            <h3>HTMLCollection<sup><a href="#ref-footnote-21" id="dfref-footnote-21">[21]</a></sup></h3>
+            <p><code>HTMLCollection</code> е динамична колекция от елементи, които са част от DOM. Тя се връща при
+                използването на методи като <code>getElementsByClassName()</code>, <code>getElementsByTagName()</code> и
+                <code>getElementsByName()</code>.
+            </p>
+            <p>Една от основните характеристики на <code>HTMLCollection</code> е, че тя е <strong>динамична</strong>.
+                Това означава, че ако добавите или премахнете елементи от DOM, <code>HTMLCollection</code> автоматично
+                ще се актуализира.</p>
+            <p><code>HTMLCollection</code> не е истински масив, но има индексиране като масив и може да се обхожда чрез
+                <code>for</code> цикъл или <code>forEach</code> метод (въпреки че <code>forEach</code> не е наличен в
+                стари версии на IE).
+            </p>
+
+            <h4>Пример:</h4>
+            <pre class="code-block">
+                const items = document.getElementsByClassName("list-item");
+                for (let i = 0; i < items.length; i++) {
+                    console.log(items[i].innerText);
+                }
+            </pre>
+
+            <h3>NodeList<sup><a href="#ref-footnote-22" id="dfref-footnote-22">[22]</a><a href="#ref-footnote-23"
+                        id="dfref-footnote-23">[23]</a></sup></h3>
+            <p><code>NodeList</code> също е масивоподобен обект, който се връща от методи като
+                <code>querySelectorAll()</code> и <code>childNodes</code>. За разлика от <code>HTMLCollection</code>,
+                <code>NodeList</code> не е задължително да бъде динамичен; това означава, че ако промените DOM,
+                <code>NodeList</code> няма да се актуализира автоматично, освен ако не използвате специфичен метод като
+                <code>querySelectorAll()</code> за ново извикване.
+            </p>
+            <p>Основното предимство на <code>NodeList</code> е, че може да бъде обхождан с <code>forEach</code>, което
+                го прави по-гъвкав в много случаи.</p>
+
+            <h4>Пример:</h4>
+            <pre class="code-block">
+                const listItems = document.querySelectorAll(".list-item");
+                listItems.forEach(item => {
+                    console.log(item.innerText);
+                });
+            </pre>
+
+            <h3>Основни разлики между HTMLCollection и NodeList</h3>
+            <table id="differences-table" class="table">
+                <thead>
+                    <tr>
+                        <th>Характеристика</th>
+                        <th>HTMLCollection</th>
+                        <th>NodeList</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Динамичност</td>
+                        <td>Да</td>
+                        <td>Не (освен за определени методи като <code>querySelectorAll()</code>)</td>
+                    </tr>
+                    <tr>
+                        <td>Може ли да се обхожда с <code>forEach</code></td>
+                        <td>Не (в стари браузъри)</td>
+                        <td>Да</td>
+                    </tr>
+                    <tr>
+                        <td>Методи за достъп</td>
+                        <td><code>getElementsByClassName()</code>, <code>getElementsByTagName()</code>,
+                            <code>getElementsByName()</code>
+                        </td>
+                        <td><code>querySelectorAll()</code>, <code>childNodes()</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Обобщение</h3>
+            <p>Както <code>HTMLCollection</code>, така и <code>NodeList</code> са полезни при работа с DOM, но разликите
+                им могат да променят начина, по който обработвате елементите. Когато имате нужда от динамично обновяване
+                на колекция от елементи, <code>HTMLCollection</code> е правилният избор. Когато искате по-голяма
+                гъвкавост и лесно обхождане на елементи, <code>NodeList</code> може да бъде по-подходящ.</p>
+
+        </section>
+        <hr>
+        <section id="attributes-properties">
+            <h2>Атрибути и свойства на елементите</h2>
+            <p>DOM разглежда два типа данни, свързани с елементите: HTML атрибути и JavaScript свойства. Въпреки че
+                понякога те изглеждат като едно и също нещо, има ключови разлики в начина, по който се съхраняват и
+                обработват.</p>
+
+            <h3>HTML Атрибути</h3>
+            <p>Атрибутите на елементите в HTML определят допълнителни характеристики и метаинформация за елементите. Те
+                се задават в HTML кода и често се използват за предоставяне на контекст на браузъра или други
+                технологии.</p>
+            <p>Пример за HTML атрибут е <code>src</code> за елементите <code>&lt;img&gt;</code>, <code>href</code> за
+                елементите <code>&lt;a&gt;</code>, и <code>value</code> за елементите <code>&lt;input&gt;</code>.</p>
+
+            </pre>
+
+            <p>Тези атрибути могат да бъдат достъпвани чрез JavaScript, но те не се актуализират автоматично, ако
+                промените свойствата на елементите чрез JavaScript.</p>
+
+            <h3>Свойства на елементите</h3>
+            <p>Свойствата на елементите се дефинират в JavaScript обектите, които представят DOM елементите. Те
+                отразяват текущото състояние на елементите и могат да се променят по време на изпълнение на програмата.
+            </p>
+            <p>Свойствата на елементите са различни от атрибутите, като например свойството <code>value</code> на
+                елементите <code>&lt;input&gt;</code>, което се използва за отчитане на текущото въведено съдържание в
+                текстовото поле, докато атрибутът <code>value</code> съществува само в HTML и не се актуализира в реално
+                време.</p>
+
+            <h4>Пример:</h4>
+            <pre class="code-block">
+        const inputElement = document.getElementById("username");
+        console.log(inputElement.value); // Извежда текущата стойност на input
+    </pre>
+
+            <p>Важно е да се отбележи, че промяната на свойства, като <code>innerText</code> или <code>value</code>, ще
+                отрази новото състояние на елемента, докато промяната на атрибутите няма да го направи автоматично.</p>
+
+            <h3>Как да променяме атрибути и свойства</h3>
+            <p>Можем да променяме атрибутите на елементите с помощта на метода <code>setAttribute()</code>, а свойствата
+                - чрез директен достъп до тях като JavaScript свойства.</p>
+
+            <h4>Пример за промяна на атрибут:</h4>
+            <pre class="code-block">
+        const link = document.querySelector("a");
+        link.setAttribute("href", "https://new-url.com");
+    </pre>
+
+            <h4>Пример за промяна на свойство:</h4>
+            <pre class="code-block">
+        const input = document.getElementById("username");
+        input.value = "Нова стойност";
+    </pre>
+
+            <h3>Разлики между атрибути и свойства</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Характеристика</th>
+                        <th>Атрибути</th>
+                        <th>Свойства</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Дефиниция</td>
+                        <td>Зададени в HTML кода.</td>
+                        <td>Присъстват в JavaScript обектите, представящи DOM елементите.</td>
+                    </tr>
+                    <tr>
+                        <td>Обновяване</td>
+                        <td>Не се актуализират автоматично при промяна на състоянието на елемента.</td>
+                        <td>Отразяват текущото състояние на елемента в реално време.</td>
+                    </tr>
+                    <tr>
+                        <td>Пример</td>
+                        <td><code>src</code>, <code>href</code>, <code>alt</code></td>
+                        <td><code>value</code>, <code>innerText</code>, <code>checked</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Заключение</h3>
+            <p>Атрибутите и свойствата играят важна роля в работата с DOM, като разликите между тях трябва да се
+                разбират добре, за да може да се използват по най-ефективния начин в зависимост от нуждите на вашето
+                приложение. Атрибутите са полезни за задаване на статични стойности, докато свойствата са по-подходящи
+                за динамична работа с елементите в браузъра.</p>
+        </section>
+        <hr>
+        <section id="performance-optimizations">
+            <h2>Оптимизация на работа с DOM</h2>
+            <p>Работата с DOM може да бъде бавна, особено когато се правят множество операции, които включват често
+                манипулиране на елементите на страницата. Прилагането на оптимизационни техники може да подобри
+                значително производителността на уеб приложенията. В тази секция ще разгледаме някои от най-често
+                използваните методи за оптимизация на работата с DOM.</p>
+
+            <h3>1. Минимизиране на обхожданията на DOM</h3>
+            <p>Едно от основните предизвикателства при работата с DOM е броят на обхожданията на DOM дървото. Честото
+                достъпване на DOM за получаване на елементи или за промяна на съдържание може да доведе до сериозни
+                забавяния. Вместо да правите множество заявки към DOM, препоръчва се да ги минимизирате.</p>
+
+            <p><strong>Пример за лоша практика:</strong></p>
+            <pre class="code-block">
+                const div = document.getElementById("container");
+                div.style.backgroundColor = "blue";
+                div.style.color = "white";
+                div.innerText = "Нов текст";
+            </pre>
+
+            <p>В този случай всяка промяна изисква ново взаимодействие с DOM, което е неефективно.</p>
+
+            <p><strong>Пример за добра практика:</strong></p>
+            <pre class="code-block">
+                const div = document.getElementById("container");
+                div.style.cssText = "background-color: blue; color: white;";
+                div.innerText = "Нов текст";
+            </pre>
+
+            <p>Втората версия използва свойството <code>cssText</code>, за да направи всички промени наведнъж, което
+                намалява броя на взаимодействията с DOM.</p>
+
+            <h3>2. Използване на <code>DocumentFragment</code><sup><a href="#ref-footnote-24"
+                        id="dfref-footnote-24">[24]</a></sup></h3>
+            <p>Когато се налага да добавяте множество елементи в DOM, може да използвате <code>DocumentFragment</code>,
+                който е лека версия на DOM дървото. Той позволява добавяне на елементи извън основния DOM, което
+                ускорява процеса на манипулация. След като всички елементи са добавени към фрагмента, той може да бъде
+                добавен към истинския DOM наведнъж, вместо да се добавят един по един.</p>
+
+            <p><strong>Пример:</strong></p>
+            <pre class="code-block">
+                const fragment = document.createDocumentFragment();
+                for (let i = 0; i < 1000; i++) {
+                    const li = document.createElement("li");
+                    li.innerText = `Елемент ${i}`;
+                    fragment.appendChild(li);
+                }
+                document.getElementById("list-container").appendChild(fragment);
+            </pre>
+
+            <p>В този пример се създават 1000 елемента и се добавят в <code>DocumentFragment</code>, а след това целият
+                фрагмент се добавя към DOM, като минимизира броя на операциите по манипулиране на DOM.</p>
+
+            <h3>3. Използване на <code>requestAnimationFrame</code><sup><a href="#ref-footnote-25"
+                        id="dfref-footnote-25">[25]</a></sup> за анимации</h3>
+            <p>Ако създавате анимации с JavaScript, използването на <code>requestAnimationFrame</code> е по-ефективен
+                начин за планиране на анимациите. Този метод синхронизира анимациите с честотата на опресняване на
+                екрана, като по този начин намалява натоварването на процесора и подобрява производителността на
+                приложението.</p>
+
+            <p><strong>Пример:</strong></p>
+            <pre class="code-block">
+                function animate() {
+                    const box = document.getElementById("animated-box");
+                    let position = 0;
+                    function move() {
+                        position += 1;
+                        box.style.transform = `translateX(${position}px)`;
+                        if (position < 500) {
+                            requestAnimationFrame(move);
+                        }
+                    }
+                    move();
+                }
+        
+                animate();
+            </pre>
+
+            <p>В този пример се използва <code>requestAnimationFrame</code> за плавно движение на елемент, като се
+                намалява натоварването на процесора.</p>
+
+            <h3>4. Ограничаване на манипулацията с класове</h3>
+            <p>Работата с класове е важен аспект на манипулацията на елементите. Използването на
+                <code>classList</code><sup><a href="#ref-footnote-26" id="dfref-footnote-26">[26]</a></sup>
+                е по-ефективно от добавянето и премахването на класове чрез манипулация на атрибута <code>class</code>.
+            </p>
+
+            <p><strong>Пример за лоша практика:</strong></p>
+            <pre class="code-block">
+                const button = document.querySelector(".my-button");
+                button.className += " active"; // Може да доведе до проблеми с други класове
+            </pre>
+
+            <p><strong>Пример за добра практика:</strong></p>
+            <pre class="code-block">
+                const button = document.querySelector(".my-button");
+                button.classList.add("active");
+            </pre>
+
+            <p>Използването на <code>classList</code> е по-бързо и безопасно, тъй като не променя целия класов атрибут,
+                а добавя или премахва класове поотделно.</p>
+
+            <h3>5. Избягване на излишни ререндери</h3>
+            <p>Всеки път когато правите промени в DOM, браузърът трябва да изчисли новото оформление на страницата,
+                което може да бъде времеемко. Препоръчително е да се минимизират излишните ререндери, като се правят
+                промените на елементите в DOM възможно най-бързо, например, като се комбинират промените в една
+                операция.</p>
+
+            <h3>Заключение</h3>
+            <p>Оптимизацията на работата с DOM е важна част от създаването на бързи и отзивчиви уеб приложения. Чрез
+                прилагане на горепосочените техники може да постигнете значителни подобрения в производителността на
+                вашето приложение, като същевременно намалите натоварването на браузъра и сървъра.</p>
+        </section>
+        <hr>
+        <section id="virtual-dom">
+            <h2>Концепция за Virtual DOM</h2>
+            <p>Virtual DOM (виртуален DOM) е концепция, използвана в модерни JavaScript библиотеки и фреймворкове като
+                React. Тази техника позволява на приложенията да управляват състоянието на потребителския интерфейс по
+                по-ефективен начин, като минимизира броя на директните манипулации с реалния DOM. Основната идея зад
+                Virtual DOM е да се създаде копие на реалния DOM в паметта, което да бъде използвано за извършване на
+                промени, преди те да се приложат към реалния DOM.</p>
+
+            <h3>Как работи Virtual DOM?</h3>
+            <p>Когато потребителят извърши действие, което води до промяна на състоянието на интерфейса (например
+                натискане на бутон или промяна на данни), Virtual DOM създава ново "виртуално" дърво, което представя
+                новото състояние на DOM. След това библиотеката или фреймворкът сравнява старото и новото виртуално DOM
+                дърво чрез процес, наречен "дифинг" (diffing), за да определи минималния набор от промени, които трябва
+                да бъдат приложени към реалния DOM. Това позволява на браузъра да извърши оптимизирани манипулации и да
+                обнови интерфейса по-бързо.</p>
+
+            <p>Този процес значително намалява разходите, свързани с чести операции върху реалния DOM, които иначе биха
+                могли да доведат до забавяне на приложението.</p>
+
+            <h3>Предимства на Virtual DOM</h3>
+            <ul>
+                <li><strong>Подобрена производителност:</strong> Virtual DOM минимизира броя на директните манипулации с
+                    реалния DOM, като позволява на браузъра да извърши само необходимите промени.</li>
+                <li><strong>По-бързи обновявания на UI:</strong> Процесът на дифинг и оптимизираните актуализации водят
+                    до по-бързи реакции на потребителския интерфейс.</li>
+                <li><strong>Лесно управление на състоянието:</strong> Virtual DOM улеснява управлението на състоянието
+                    на компоненти в динамични приложения, като автоматично обновява частите на интерфейса, които са били
+                    променени.</li>
+            </ul>
+
+            <h3>Разлика между реален DOM и Virtual DOM</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Аспект</th>
+                        <th>Реален DOM</th>
+                        <th>Virtual DOM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Изпълнение</td>
+                        <td>Множество директни манипулации на DOM, което е бавно.</td>
+                        <td>Създава виртуален DOM, който е по-бърз и ефективен.</td>
+                    </tr>
+                    <tr>
+                        <td>Производителност</td>
+                        <td>По-ниска, особено при сложни интерфейси с чести обновявания.</td>
+                        <td>По-висока, тъй като минимизира директните манипулации с реалния DOM.</td>
+                    </tr>
+                    <tr>
+                        <td>Сложност</td>
+                        <td>Изисква ръчно управление на всяка промяна на състоянието.</td>
+                        <td>Автоматизира процеса на обновяване на интерфейса чрез дифинг и оптимизиране на промените.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Заключение</h3>
+            <p>Virtual DOM е ключова концепция за модерни уеб приложения и предлага значителни предимства, когато става
+                въпрос за производителност и динамичност на интерфейса. Библиотеки като React я използват, за да
+                осигурят бързо и ефективно обновяване на DOM, като същевременно минимизират проблемите със забавянето на
+                приложението, характерни за традиционните манипулации с реалния DOM.</p>
+        </section>
+        <hr>
+        <footer id="footnotes">
+            <h2>Източници</h2>
+            <ol>
+                <li id="ref-footnote-1">
+                    <a href="https://www.w3schools.com/js/js_htmldom.asp" target="_blank">HTML DOM - W3Schools</a>
+                    <a href="#dfref-footnote-1" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-2">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction#accessing_the_dom"
+                        target="_blank">Основни типове обекти - </a>
+                    <a href="#dfref-footnote-2" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-3">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById" target="_blank">
+                        getElementById() – MDN Web Docs </a>
+                    <a href="#dfref-footnote-3" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-4">
+                    <a href="https://javascript.info/dom-navigation" target="_blank">
+                        DOM Navigation – javascript.info
+                    </a> <a href="#dfref-footnote-4" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-5">
+                    <a href="https://web.dev/dom-performance/" target="_blank">
+                        DOM Performance Optimization – web.dev
+                    </a> <a href="#dfref-footnote-5" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-6">
+                    <a href="https://javascript.info/dom-navigation" target="_blank">
+                        DOM Tree Navigation – javascript.info
+                    </a> <a href="#dfref-footnote-6" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-7">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/parentNode" target="_blank">
+                        parentNode – MDN Web Docs
+                    </a> <a href="#dfref-footnote-7" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-8">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/innerText" target="_blank">
+                        Element.innerText – MDN Web Docs
+                    </a> <a href="#dfref-footnote-8" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-9">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute" target="_blank">
+                        Element.setAttribute() – MDN Web Docs
+                    </a> <a href="#dfref-footnote-9" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-10">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/style" target="_blank">
+                        HTMLElement.style – MDN Web Docs
+                    </a> <a href="#dfref-footnote-10" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-11">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/replaceChild" target="_blank">
+                        Node.replaceChild() – MDN Web Docs
+                    </a> <a href="#dfref-footnote-11" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-12">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement" target="_blank">
+                        Document.createElement() – MDN Web Docs
+                    </a> <a href="#dfref-footnote-12" title="back to document">↩</a>
+                </li>
+
+                <li id="ref-footnote-13">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild" target="_blank">
+                        Node.appendChild() – MDN Web Docs
+                    </a> <a href="#dfref-footnote-13" title="back to document">↩</a>
+                </li>
+
+                <li id="ref-footnote-14">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/createTextNode" target="_blank">
+                        Document.createTextNode() – MDN Web Docs
+                    </a> <a href="#dfref-footnote-14" title="back to document">↩</a>
+                </li>
+
+                <li id="ref-footnote-15">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute" target="_blank">
+                        Element.setAttribute() – MDN Web Docs
+                    </a> <a href="#dfref-footnote-15" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-16">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild" target="_blank">
+                        Node.removeChild() – MDN Web Docs
+                    </a> <a href="#dfref-footnote-16" title="back to document">↩</a>
+                </li>
+
+                <li id="ref-footnote-17">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/remove" target="_blank">
+                        Element.remove() – MDN Web Docs
+                    </a> <a href="#dfref-footnote-17" title="back to document">↩</a>
+                </li>
+
+                <li id="ref-footnote-18">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/firstChild" target="_blank">
+                        Node.firstChild – MDN Web Docs
+                    </a> <a href="#dfref-footnote-18" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-19">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener"
+                        target="_blank">
+                        EventTarget.addEventListener() – MDN Web Docs
+                    </a> <a href="#dfref-footnote-19" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-20">
+                    <a href="https://www.geeksforgeeks.org/event-delegation-in-javascript/" target="_blank">
+                        Event Delegation – geeksforgeeks.org
+                    </a> <a href="#dfref-footnote-20" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-21">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection" target="_blank">
+                        HTMLCollection – MDN Web Docs
+                    </a> <a href="#dfref-footnote-21" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-22">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/NodeList" target="_blank">
+                        NodeList – MDN Web Docs
+                    </a> <a href="#dfref-footnote-22" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-23">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/NodeList/forEach" target="_blank">
+                        NodeList.forEach() – MDN Web Docs
+                    </a> <a href="#dfref-footnote-23" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-24">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment" target="_blank">
+                        DocumentFragment – MDN Web Docs
+                    </a> <a href="#dfref-footnote-24" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-25">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame"
+                        target="_blank">
+                        requestAnimationFrame – MDN Web Docs
+                    </a> <a href="#dfref-footnote-25" title="back to document">↩</a>
+                </li>
+                <li id="ref-footnote-26">
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/classList" target="_blank">
+                        classList – MDN Web Docs
+                    </a> <a href="#dfref-footnote-26" title="back to document">↩</a>
+                </li>
+
+            </ol>
+        </footer>
+    </main>
+</body>
+
+</html>
